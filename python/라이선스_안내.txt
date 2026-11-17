@@ -1,0 +1,17 @@
+동봉 실행 환경 라이선스 안내
+
+이 python 폴더는 Python 3.12.12 Windows x64 배포본입니다.
+출처: python-build-standalone (https://github.com/astral-sh/python-build-standalone) 의 install_only 배포본
+       설치 없이 폴더째 실행되도록 그대로 넣었고, 실행에 쓰지 않는 일부 파일(설치 도구 등)만 줄였습니다.
+       원본 압축 파일의 SHA-256을 받은 뒤 대조하여 확인했습니다.
+
+구성요소별 라이선스
+- Python 3.12.12 (CPython): PSF License Agreement — 같은 폴더의 LICENSE.txt 전문
+  (LICENSE.txt에는 bzip2, Tcl/Tk 등 CPython에 포함된 구성요소의 고지도 들어 있습니다)
+- python-build-standalone (배포본을 만드는 빌드 도구): Mozilla Public License 2.0 — licenses\python-build-standalone_LICENSE.txt
+- OpenSSL 3 (DLLs\libcrypto-3-x64.dll, libssl-3-x64.dll): Apache License 2.0 — licenses\OpenSSL_LICENSE.txt
+- libffi (DLLs\libffi-8.dll): MIT License — licenses\libffi_LICENSE.txt
+- SQLite (DLLs\sqlite3.dll): Public Domain
+- Microsoft Visual C++ 런타임 (vcruntime140*.dll): Microsoft 재배포 가능 구성요소
+
+이 프로그램(jeju_med)은 위 표준 라이브러리 외에 다른 외부 패키지를 사용하지 않습니다.

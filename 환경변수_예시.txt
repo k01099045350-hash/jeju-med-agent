@@ -1,0 +1,20 @@
+환경변수 예시 (모두 선택 — 아무것도 설정하지 않아도 모든 기능이 동작합니다)
+
+[Windows 명령 프롬프트에서 이번 실행에만 적용]
+  set JEJU_MED_PORT=8766
+  set OPENAI_API_KEY=여기에_키
+  run.bat
+
+[Windows에 계속 저장]
+  Windows 검색 → "시스템 환경 변수 편집" → [환경 변수] → 사용자 변수 [새로 만들기]
+
+이름                         설명                                         기본값
+OPENAI_API_KEY               AI 보조(질문 고쳐 쓰기)에 OpenAI 사용          (없음)
+ANTHROPIC_API_KEY            AI 보조에 Anthropic 사용                      (없음)
+JEJU_MED_OPENAI_MODEL        OpenAI 모델                                   gpt-4o-mini
+JEJU_MED_ANTHROPIC_MODEL     Anthropic 모델                                claude-haiku-5-5
+JEJU_MED_LLM_MAX_CALLS       한 번 실행 중 AI 호출 최대 횟수(과다 호출 방지) 200
+JEJU_MED_PORT                사용 포트(8765가 이미 쓰일 때)                8765
+
+키는 환경변수 대신 맨 위 폴더의 '평가용_API키.txt'에 적어도 됩니다. 환경변수가 있으면 환경변수가 먼저 쓰입니다.
+키는 이 파일에 적지 마세요(이 파일은 설명용입니다).

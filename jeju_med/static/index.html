@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>제주 동네별 진료과목 비교</title>
+<style>
+:root{
+  --bg:#f6f4ef; --panel:#ffffff; --ink:#1f2a2e; --muted:#5d6b70; --line:#e2ddd2;
+  --accent:#1f6f5c; --accent-soft:#e3f1ec; --warn:#a4532a; --warn-soft:#fbeee6;
+  --zero:#b23a2e; --bar:#2f8a73; --bar-unf:#d9a26b;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+header{background:var(--accent);color:#fff;padding:18px 28px}
+header h1{margin:0;font-size:22px;letter-spacing:-.3px}
+header p{margin:4px 0 0;opacity:.85;font-size:13px}
+main{max-width:1180px;margin:0 auto;padding:20px 24px 90px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:14px}
+.ask{display:flex;gap:8px}
+.ask input{flex:1;font:inherit;font-size:17px;padding:12px 14px;border:2px solid var(--line);border-radius:8px}
+.ask input:focus{outline:none;border-color:var(--accent)}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:#fff;padding:8px 14px}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700;padding:10px 20px}
+button:disabled{opacity:.5;cursor:default}
+.examples{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+.examples button{font-size:13px;background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.label{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:6px;letter-spacing:.2px}
+.conds{display:grid;grid-template-columns:1.3fr 1fr 1.6fr;gap:16px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:4px 10px;font-size:14px;font-weight:700}
+.chip .x{cursor:pointer;opacity:.6;font-weight:400}
+select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:#fff;max-width:100%}
+.checks label{display:inline-flex;align-items:center;gap:4px;margin-right:10px;font-size:14px;white-space:nowrap}
+.condfoot{margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.understood{font-size:13px;color:var(--muted)}
+.msg{padding:12px 14px;border-radius:8px;background:var(--warn-soft);color:var(--warn);font-weight:600}
+.confirm .opt{display:block;width:100%;text-align:left;margin-top:8px;padding:12px 14px}
+.confirm .opt b{font-size:16px}
+.confirm .opt small{display:block;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fff}
+.card h3{margin:0 0 6px;font-size:17px}
+.big{font-size:40px;font-weight:800;color:var(--accent);line-height:1.1}
+.big.zero{color:var(--zero)}
+.big small{font-size:15px;font-weight:600;color:var(--muted);margin-left:4px}
+.sub{font-size:14px;color:var(--muted);margin-top:4px}
+.sub b.unf{color:var(--warn)}
+.sentences{background:#fbfaf6;border-left:4px solid var(--accent);padding:10px 14px;border-radius:6px}
+.sentences p{margin:4px 0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+th{background:#f2efe8;font-size:13px;position:sticky;top:0}
+.tablewrap{max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:8px}
+.tag{display:inline-block;font-size:12px;padding:1px 7px;border-radius:4px;background:#eef0f1;color:#3e4b50}
+.tag.unf{background:var(--warn-soft);color:var(--warn)}
+.hl{background:#fff2b8;font-weight:700;padding:0 2px;border-radius:3px}
+.rank td.bar{width:45%}
+.barwrap{display:flex;height:16px;background:#f0ede6;border-radius:4px;overflow:hidden}
+.barwrap .r{background:var(--bar)} .barwrap .u{background:var(--bar-unf)}
+.legend{font-size:12px;color:var(--muted)} .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin:0 4px 0 10px;vertical-align:-1px}
+.zero-row td:first-child{color:var(--zero);font-weight:700}
+.steps ol{margin:6px 0 0;padding-left:22px;font-size:14px}.steps li{margin:3px 0}
+.mapwrap{position:relative;border:1px solid var(--line);border-radius:8px;background:#eef4f7;overflow:hidden;margin-top:8px}
+.mapwrap svg{display:block;width:100%;height:440px}.mapwrap svg.tall{height:560px}
+.mapwrap .rg{fill:#fbfaf6;stroke:#b8c4bf;stroke-width:.8;vector-effect:non-scaling-stroke}
+.mapwrap .rg.hi{fill:#d6ebe3;stroke:var(--accent);stroke-width:2.2}
+.mapwrap .rg.hi.c0{fill:#cfe8de;stroke:#1f6f5c;stroke-width:2.6}.mapwrap .rg.hi.c1{fill:#d9e3f7;stroke:#3159a8;stroke-width:2.6}
+.mapwrap .rg.hi.c2{fill:#efdcf0;stroke:#8a3f91;stroke-width:2.6}.mapwrap .rg.hi.c3{fill:#f8e7c8;stroke:#a8701a;stroke-width:2.6}
+.mapwrap .dot.k0{stroke:#1f6f5c;stroke-width:2.5}.mapwrap .dot.k1{stroke:#3159a8;stroke-width:2.5}.mapwrap .dot.k2{stroke:#8a3f91;stroke-width:2.5}.mapwrap .dot.k3{stroke:#a8701a;stroke-width:2.5}
+.legend .sw{display:inline-block;width:14px;height:14px;border-radius:3px;margin:0 4px 0 12px;vertical-align:-2px}
+.mapwrap .dg{cursor:pointer}.mapbtn{position:absolute;top:10px;right:10px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:5px 12px;font-size:13px;z-index:3}.mapwrap .dot{stroke:#fff;stroke-width:1.5;vector-effect:non-scaling-stroke;cursor:pointer}
+.mapwrap .dot.r{fill:var(--accent)} .mapwrap .dot.u{fill:#e08a3c}
+.mapwrap .dot:hover,.mapwrap .dot.on{stroke:#1f2a2e;stroke-width:3}
+.mapwrap .chbox{fill:none;stroke:#9aa7a2;stroke-dasharray:4 3;vector-effect:non-scaling-stroke}
+.mapwrap .chlab{fill:#5d6b70}
+.maptip{position:absolute;pointer-events:none;background:#1f2a2e;color:#fff;font-size:12px;padding:4px 8px;border-radius:4px;white-space:nowrap;display:none;z-index:2}
+.mapnote{font-size:12.5px;color:var(--muted);margin-top:6px}
+.mapcount{font-weight:700;color:var(--ink)}
+tr.flash td{background:#fff2b8 !important;transition:background .2s}
+.rg.ch0{fill:#f6dcd6;stroke:#b23a2e} .rg.ch{cursor:pointer}
+.notes{font-size:13px;color:var(--muted)} .notes li{margin:2px 0}
+.sugg button{background:var(--accent-soft);border-color:transparent;color:var(--accent);font-weight:700}
+footer{position:fixed;left:0;right:0;bottom:0;background:#26332f;color:#e9efe9;font-size:13px;padding:9px 24px;text-align:center}
+.tabs{display:flex;gap:6px;margin-top:10px}
+.tabs button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.hidden{display:none}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid #fff;border-right-color:transparent;border-radius:50%;animation:s .7s linear infinite;vertical-align:-2px}
+@keyframes s{to{transform:rotate(360deg)}}
+@media (max-width:860px){.conds{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>제주 동네별 진료과목 비교</h1>
+  <p id="dataLabel">데이터 불러오는 중…</p>
+</header>
+<main>
+  <section class="panel">
+    <div class="ask">
+      <input id="q" placeholder="예: 한경면에 소아청소년과 있어?  /  애월읍과 한림읍 정형외과 비교  /  산부인과 없는 지역은?" autofocus>
+      <button class="primary" id="go">물어보기</button>
+    </div>
+    <div class="examples" id="examples"></div>
+  </section>
+
+  <section class="panel hidden" id="condPanel">
+    <div class="conds">
+      <div>
+        <div class="label">지역 <span id="unitLabel"></span></div>
+        <div class="chips" id="areaChips"></div>
+        <div style="margin-top:8px" id="areaAddWrap">
+          <select id="areaAdd"><option value="">+ 비교할 지역 추가</option></select>
+        </div>
+        <div style="margin-top:8px" id="rankOpts" class="hidden">
+          <select id="unitSel">
+            <option value="eupmyeon_urban">읍·면 12곳 + 동지역 2곳</option>
+            <option value="legal">읍·면 + 법정동 상세</option>
+          </select>
+          <select id="orderSel">
+            <option value="asc">적은 곳부터</option>
+            <option value="desc">많은 곳부터</option>
+          </select>
+          <select id="siSel">
+            <option value="">제주 전체</option><option value="제주시">제주시만</option><option value="서귀포시">서귀포시만</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <div class="label">진료과목</div>
+        <select id="subjSel"><option value="">(과목 지정 없음 - 시설 수만)</option></select>
+        <div class="understood" id="aliasNote" style="margin-top:6px"></div>
+      </div>
+      <div>
+        <div class="label">어떤 시설까지 셀까요</div>
+        <div class="checks" id="groupChecks"></div>
+        <div class="checks" style="margin-top:6px"><label><input type="checkbox" id="hospOnly"> 병원급만 (의원 제외)</label></div>
+      </div>
+    </div>
+    <div class="condfoot">
+      <div class="understood" id="understood"></div>
+      <button class="primary" id="recalc">이 조건으로 다시 계산</button>
+    </div>
+  </section>
+
+  <section id="out">
+    <div class="panel" id="intro">
+      <div class="label">이 도구로 할 수 있는 것</div>
+      <div class="cards" style="margin-top:6px">
+        <div class="card"><h3>동네에 그 과목이 있나</h3><div class="sub">"한경면에 소아청소년과 있어?" → 등록 시설 수, 병원 이름, 과목 정보가 없는 시설까지 함께 보여 줍니다.</div></div>
+        <div class="card"><h3>지역끼리 비교</h3><div class="sub">"애월읍과 한림읍 정형외과 비교" → 같은 기준으로 나란히 셉니다. 결과 화면에서 지역을 더 추가할 수 있습니다.</div></div>
+        <div class="card"><h3>제주 전체 권역별 비교</h3><div class="sub">"산부인과 등록 시설이 없는 지역은?" → 읍·면 12곳과 동지역 2곳을 한 표로 봅니다.</div></div>
+        <div class="card"><h3>보고서에 바로 쓰기</h3><div class="sub">결과 문장 복사와 근거 목록 CSV 내려받기. 모든 숫자는 출처 자료의 행까지 확인할 수 있습니다.</div></div>
+      </div>
+      <p class="understood" style="margin:12px 0 0">하지 않는 일: 증상 상담·진료과 추천, 가장 가까운 병원·길 안내, 진료시간·예약 확인, 응급 판단 (응급은 119).</p>
+    </div>
+  </section>
+</main>
+<footer>진료과목은 기관이 <b>등록(표방)한 과목</b>입니다. 전문의 여부·진료 가능 여부·진료시간과 다를 수 있으니 방문 전 기관에 확인하세요. 응급 상황은 119.</footer>
+
+<script>
+const GROUP_LABEL={"의과":"의원·병원","보건기관":"보건소·보건지소·보건진료소","치과":"치과","한방":"한의원·한방병원","기타":"조산원"};
+const EXAMPLES=["한경면에 소아청소년과 있어?","애월읍과 한림읍 정형외과 비교","산부인과 등록 시설이 없는 지역은?","서귀포시 동지역 비뇨기과","정방동 이비인후과","배가 아파요 어디 가야 해요?"];
+let META=null, STATE=null, LAST=null, LAST_OK=null, MAP=null;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+async function init(){
+  META=await (await fetch("/api/meta")).json();
+  try{MAP=await (await fetch("/jeju_map.json")).json()}catch(e){MAP=null}
+  $("dataLabel").textContent=`데이터: ${META.data_label} · 시설 ${META.facilities.toLocaleString()}곳 · 질문 해석 보조(LLM): ${META.llm?META.llm_name+" 사용":"꺼짐 (규칙 해석만, 결과는 동일)"}`;
+  EXAMPLES.forEach(t=>{const b=document.createElement("button");b.textContent=t;b.onclick=()=>{$("q").value=t;ask()};$("examples").appendChild(b)});
+  const sel=$("subjSel");
+  ["의과","치과","한방"].forEach(g=>{const og=document.createElement("optgroup");og.label=GROUP_LABEL[g]+" 과목";
+    META.subjects.filter(s=>s.group===g).forEach(s=>{const o=document.createElement("option");o.value=s.name;o.textContent=`${s.name} (${s.count})`;og.appendChild(o)});sel.appendChild(og)});
+  const aa=$("areaAdd");
+  ["제주시","서귀포시"].forEach(si=>{const og=document.createElement("optgroup");og.label=si;
+    META.areas.filter(a=>a.si===si).forEach((a,i)=>{const o=document.createElement("option");o.value=META.areas.indexOf(a);o.textContent=a.label+(a.kind==="법정동"?" (법정동)":"");og.appendChild(o)});aa.appendChild(og)});
+  $("groupChecks").innerHTML=META.groups.map(g=>`<label><input type="checkbox" value="${g}"> ${GROUP_LABEL[g]}</label>`).join("");
+  $("go").onclick=ask; $("q").addEventListener("keydown",e=>{if(e.key==="Enter")ask()});
+  $("recalc").onclick=()=>run({conditions:readConds()});
+  aa.onchange=()=>{if(aa.value==="")return;const a=META.areas[+aa.value];if(!STATE)return;
+    if(STATE.intent==="rank"){STATE.intent="single";STATE.areas=[]}
+    if(!STATE.areas.some(x=>x.label===a.label))STATE.areas.push({label:a.label,members:a.members,kind:a.kind,note:a.note});
+    aa.value="";run({conditions:readConds()})};
+}
+
+function ask(){const q=$("q").value.trim(); if(!q)return;
+  const ctx=(LAST_OK&&LAST_OK.conditions)?LAST_OK.conditions:null; run({question:q,context:ctx})}
+
+async function run(body){
+  const btn=$("go"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
+  try{
+    const r=await (await fetch("/api/ask",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})).json();
+    LAST=r; if(r.status==="ok")LAST_OK=r; render(r);
+  }catch(e){$("out").innerHTML=`<div class="panel msg">서버와 연결되지 않습니다. 실행 창(검은 창)이 켜져 있는지 확인하세요.</div>`}
+  finally{btn.disabled=false; btn.textContent="물어보기"}
+}
+
+function setConds(c){
+  STATE={intent:c.intent||"single",subject:c.subject||null,groups:c.groups||["의과","보건기관"],hospital_only:!!c.hospital_only,
+         areas:(c.areas||[]).map(a=>typeof a==="string"?a:a), unit:c.unit||"eupmyeon_urban", order:c.order||"asc"};
+  $("condPanel").classList.remove("hidden");
+  $("subjSel").value=STATE.subject||"";
+  document.querySelectorAll("#groupChecks input").forEach(i=>i.checked=STATE.groups.includes(i.value));
+  $("hospOnly").checked=STATE.hospital_only;
+  const isRank=STATE.intent==="rank";
+  $("rankOpts").classList.toggle("hidden",!isRank);
+  $("unitLabel").textContent=isRank?"(권역별 비교)":"";
+  if(isRank){$("unitSel").value=STATE.unit;$("orderSel").value=STATE.order;
+    $("siSel").value=(STATE.areas.find(a=>a==="제주시"||a==="서귀포시")||"")}
+  $("aliasNote").textContent=c.alias&&c.alias!==c.subject?`'${c.alias}' → '${c.subject}'로 바꿔 찾음`:"";
+  const chips=$("areaChips");
+  if(isRank){chips.innerHTML=`<span class="chip">${esc(($("siSel").value||"제주 전체"))} 권역별 비교</span>`}
+  else chips.innerHTML=STATE.areas.map((a,i)=>`<span class="chip" title="${esc((a.members||[]).join(', '))}">${esc(a.label||a)} <span class="x" data-i="${i}">✕</span></span>`).join("")||'<span class="understood">지역 없음</span>';
+  chips.querySelectorAll(".x").forEach(x=>x.onclick=()=>{STATE.areas.splice(+x.dataset.i,1);if(STATE.areas.length)run({conditions:readConds()});else setConds(STATE)});
+  $("understood").textContent=describe(STATE);
+}
+function describe(s){
+  const g=s.groups.map(x=>GROUP_LABEL[x]).join(", ")+(s.hospital_only?" (병원급만)":"");
+  if(s.intent==="rank")return `이해한 내용: ${s.subject||"(과목 없음)"} 등록 시설 수 권역별 비교 · 범위: ${g}`;
+  return `이해한 내용: ${(s.areas.map(a=>a.label||a).join(" vs "))||"(지역 없음)"} · ${s.subject||"과목 지정 없음"} · 범위: ${g}`;
+}
+function readConds(){
+  const groups=[...document.querySelectorAll("#groupChecks input:checked")].map(i=>i.value);
+  const c={intent:STATE.intent,subject:$("subjSel").value||null,groups:groups.length?groups:["의과","보건기관"],hospital_only:$("hospOnly").checked};
+  if(STATE.intent==="rank"){c.unit=$("unitSel").value;c.order=$("orderSel").value;c.areas=$("siSel").value?[$("siSel").value]:[]}
+  else{c.areas=STATE.areas;c.intent=STATE.areas.length>1?"compare":"single"}
+  return c;
+}
+
+function render(r){
+  const out=$("out");
+  if(r.status==="out_of_scope"){$("condPanel").classList.add("hidden");out.innerHTML=`<div class="panel"><div class="msg">${esc(r.message)}</div></div>`;return}
+  if(r.conditions)setConds(r.conditions);
+  const stepsHtml=r.steps&&r.steps.length?`<details class="panel steps" open><summary class="label">Agent가 판단한 과정</summary><ol>${r.steps.map(s=>`<li><b>${esc(s.t)}</b> — ${esc(s.d)}</li>`).join("")}</ol></details>`:"";
+  if(r.status==="typo"){$("condPanel").classList.add("hidden");
+    out.innerHTML=stepsHtml+`<div class="panel confirm"><div class="msg">${esc(r.message)}</div>${r.typo.options.map((o,i)=>`<button class="opt" data-i="${i}"><b>${esc(o.label)}</b><small>“${esc(o.question)}”로 다시 묻기</small></button>`).join("")}<p class="understood" style="margin-top:10px">맞는 것이 없으면 질문을 고쳐서 다시 입력해 주세요.</p></div>`;
+    out.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{const q=r.typo.options[+b.dataset.i].question;$("q").value=q;
+      const ctx=(LAST_OK&&LAST_OK.conditions)?LAST_OK.conditions:null;run({question:q,context:ctx})});return}
+  if(r.status==="need_more"||r.status==="error"){out.innerHTML=`<div class="panel"><div class="msg">${esc(r.message)}</div>${(r.suggestions||[]).length?`<div class="sugg" style="margin-top:10px">${r.suggestions.map((s,i)=>`<button data-i="${i}">${esc(s.label)}</button>`).join(" ")}</div>`:""}</div>`;
+    out.querySelectorAll(".sugg button[data-i]").forEach(b=>b.onclick=()=>run({conditions:r.suggestions[+b.dataset.i].conditions}));return}
+  if(r.status==="confirm"){
+    out.innerHTML=(r.steps?`<details class="panel steps" open><summary class="label">Agent가 판단한 과정</summary><ol>${r.steps.map(s=>`<li><b>${esc(s.t)}</b> — ${esc(s.d)}</li>`).join("")}</ol></details>`:"")+`<div class="panel confirm"><div class="msg">${esc(r.message)}</div>`+r.confirms.map((cf,ci)=>
+      `<div style="margin-top:10px"><b>'${esc(cf.name)}'</b>을(를) 어떻게 셀까요?</div>`+cf.options.map((o,oi)=>
+      `<button class="opt" data-ci="${ci}" data-oi="${oi}"><b>${esc(o.label)}</b> — 이 범위 시설 ${o.preview.total}곳${STATE.subject?`, ${esc(STATE.subject)} 등록 ${o.preview.registered}곳`:""}<small>${esc(o.note)} (${esc(o.members.join(", "))})</small></button>`).join("")).join("")+`</div>`;
+    out.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{const o=r.confirms[+b.dataset.ci].options[+b.dataset.oi];
+      const c=readConds(); c.areas=[...(r.conditions.areas||[]),{label:o.label,members:o.members,kind:o.kind,note:o.note}]; c.intent=c.areas.length>1?"compare":"single"; run({conditions:c})});
+    return;
+  }
+  let h="";
+  if(r.steps&&r.steps.length)h+=`<details class="panel steps" open><summary class="label" style="cursor:pointer">Agent가 판단한 과정 (${r.steps.length}단계)</summary><ol>${r.steps.map(s=>`<li><b>${esc(s.t)}</b> — ${esc(s.d)}</li>`).join("")}</ol></details>`;
+  if(r.intent==="rank")h+=renderRank(r); else h+=renderCards(r);
+  h+=renderMap(r);
+  h+=`<div class="panel"><div class="row"><div class="label">보고서용 문장</div><button id="copyS">문장 복사</button></div><div class="sentences">${r.sentences.map(s=>`<p>${esc(s)}</p>`).join("")}</div></div>`;
+  if(r.suggestions&&r.suggestions.length)h+=`<div class="panel sugg"><div class="label">다음으로 볼 만한 것</div>${r.suggestions.map((s,i)=>`<button data-i="${i}">${esc(s.label)}</button>`).join(" ")} <span class="understood">또는 위 '비교할 지역 추가'에서 직접 지역을 골라 비교하세요.</span></div>`;
+  if(r.intent!=="rank")h+=renderTables(r);
+  h+=`<div class="panel notes"><div class="label">알아 둘 점</div><ul>${(r.notes||[]).map(n=>`<li>${esc(n)}</li>`).join("")}<li>출처: ${esc(r.data_label)}</li></ul></div>`;
+  out.innerHTML=h;
+  $("copyS").onclick=()=>{const t=r.sentences.join(" ")+` (출처: ${r.data_label})`;navigator.clipboard?.writeText(t).then(()=>{$("copyS").textContent="복사됨"},()=>prompt("복사하세요",t))};
+  bindMap(r);
+  out.querySelectorAll(".sugg button[data-i]").forEach(b=>b.onclick=()=>run({conditions:r.suggestions[+b.dataset.i].conditions}));
+  out.querySelectorAll("button[data-csv]").forEach(b=>b.onclick=()=>downloadCSV(+b.dataset.csv));
+  out.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{const p=b.closest(".panel");p.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));
+    p.querySelectorAll(".tbl").forEach(t=>t.classList.toggle("hidden",t.dataset.k!==b.dataset.k))});
+  out.querySelectorAll("tr[data-area]").forEach(tr=>tr.onclick=()=>{const a=META.areas.find(x=>x.label===tr.dataset.area);if(!a)return;
+    run({conditions:{intent:"single",subject:STATE.subject,groups:STATE.groups,hospital_only:STATE.hospital_only,areas:[{label:a.label,members:a.members,kind:a.kind,note:a.note}]}})});
+}
+// ------------------------------------------------------------ 지도 (오프라인 SVG)
+function P(lon,lat){const x=(lon*MAP.k-MAP.minx)*MAP.s, y=(-lat-MAP.miny)*MAP.s; return lat>33.8? [x+MAP.chuja_dx, y+MAP.chuja_dy] : [x,y]}
+function areaBB(a){const b=a.bb; return a.name==="추자면"?[b[0]+MAP.chuja_dx,b[1]+MAP.chuja_dy,b[2]+MAP.chuja_dx,b[3]+MAP.chuja_dy]:b}
+function chujaFrame(u=1){const a=MAP.areas.find(x=>x.name==="추자면");if(!a)return"";const b=areaBB(a);
+  return `<rect class="chbox" x="${b[0]-8}" y="${b[1]-8}" width="${b[2]-b[0]+16}" height="${b[3]-b[1]+16}"/><text class="chlab" x="${b[0]-8}" y="${b[3]+14*u+6}" font-size="${(12*u).toFixed(2)}">추자면 (실제보다 가깝게 옮겨 그림)</text>`}
+function regionPaths(cls,withChuja=true){return MAP.areas.filter(a=>withChuja||a.name!=="추자면").map((a,i)=>`<path class="rg ${cls(a)||""}" data-ai="${MAP.areas.indexOf(a)}" d="${a.d}" ${a.name==="추자면"?`transform="translate(${MAP.chuja_dx},${MAP.chuja_dy})"`:""}><title>${esc(a.si+" "+a.name)}</title></path>`).join("")}
+function fitBox(bbs,pad=1.25,ar=1000/440,minW=110){let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;bbs.forEach(b=>{x0=Math.min(x0,b[0]);y0=Math.min(y0,b[1]);x1=Math.max(x1,b[2]);y1=Math.max(y1,b[3])});
+  let w=Math.max(x1-x0,minW),h=Math.max(y1-y0,minW*0.64);const cx=(x0+x1)/2,cy=(y0+y1)/2; w*=pad;h*=pad;
+  if(w/h<ar)w=h*ar; else h=w/ar; return [cx-w/2,cy-h/2,w,h]}
+function renderMap(r){
+  if(!MAP)return "";
+  const head=`<div class="row"><div class="label">지도</div><div class="legend">`;
+  if(r.intent==="rank"){
+    const ok=r.results.every(x=>x.area.map_regions);
+    if(!ok)return `<div class="panel"><div class="label">지도</div><div class="mapnote">법정동 단위 상세 보기는 경계 자료가 법정동과 맞지 않아 지도를 그리지 않습니다. ‘읍·면 12곳 + 동지역 2곳’으로 바꾸면 지도가 나옵니다.</div></div>`;
+    return `<div class="panel">${head}<i style="background:#f6dcd6;border:1px solid #b23a2e"></i>등록 확인 0곳<i style="background:#2f8a73"></i>등록 확인 있음(진할수록 많음)</div></div>
+      <div class="mapwrap"><svg id="map" class="tall" viewBox="${fitBox([MAP.main_bb],1.04,1000/560).join(" ")}">${regionPaths(()=>"ch")}${chujaFrame(1.4)}</svg><div class="maptip" id="maptip"></div></div>
+      <div class="mapnote">권역을 누르면 그 지역의 병원 목록으로 넘어갑니다. 색은 등록 시설 ‘수’만 나타내며, 권역마다 인구·면적이 달라 접근성을 뜻하지 않습니다. 경계: 통계청 SGIS 행정동 경계 기반(vuski/admdongkor).</div></div>`;
+  }
+  const pts=[]; r.results.forEach((x,ri)=>{x.registered_list.forEach(f=>pts.push([f,"r",ri]));x.unfilled_list.forEach(f=>pts.push([f,"u",ri]))});
+  const shown=pts.filter(p=>p[0]["경도"]!=null);
+  const hiSet=new Set(); let noHi=[]; const regRi={}; const cmp=r.results.length>1;
+  r.results.forEach((x,ri)=>{if(x.area.map_regions)x.area.map_regions.forEach(n=>{hiSet.add(n);regRi[n]=ri}); else noHi.push(x.area.label)});
+  const bbs=shown.map(p=>{const [x,y]=P(p[0]["경도"],p[0]["위도"]);return [x,y,x,y]});
+  MAP.areas.forEach(a=>{if(hiSet.has(a.si+" "+a.name))bbs.push(areaBB(a))});
+  if(!bbs.length)bbs.push(MAP.main_bb);
+  const useCh=hiSet.has("제주시 추자면")||shown.some(p=>p[0]["위도"]>33.8);
+  const vb=fitBox(bbs), U=vb[2]/1090;
+  const subj=r.conditions.subject;
+  const tot=r.results.reduce((s,x)=>s+x.map_total,0), sh=r.results.reduce((s,x)=>s+x.map_shown,0);
+  window.__MAPPTS=shown; window.__MAPVB0=vb; window.__MAPCMP=cmp;
+  // 비교일 때 지역 이름표: 경계가 있으면 경계 가운데, 없으면 그 지역 점들의 가운데
+  window.__MAPLABS=cmp?r.results.map((x,ri)=>{let b=null;
+      const ext=(q)=>{b=b?[Math.min(b[0],q[0]),Math.min(b[1],q[1]),Math.max(b[2],q[2]),Math.max(b[3],q[3])]:q.slice()};
+      MAP.areas.forEach(a=>{if(regRi[a.si+" "+a.name]===ri)ext(areaBB(a))});
+      if(!b)shown.filter(p=>p[2]===ri).forEach(p=>{const [px_,py_]=P(p[0]["경도"],p[0]["위도"]);ext([px_,py_,px_,py_])});
+      return b?{x:(b[0]+b[2])/2,y:(b[1]+b[3])/2,t:`${x.area.label} ${subj?"등록 "+x.registered:x.total}곳`,ri}:null}).filter(Boolean):[];
+  return `<div class="panel">${head}${subj?`<i style="background:var(--accent)"></i>${esc(subj)} 등록 확인<i style="background:#e08a3c"></i>과목 정보 없음`:`<i style="background:var(--accent)"></i>시설`}${cmp?" · 지역 구분:"+r.results.map((x,ri)=>`<span class="sw" style="background:${["#cfe8de","#d9e3f7","#efdcf0","#f8e7c8"][ri%4]};border:2px solid ${["#1f6f5c","#3159a8","#8a3f91","#a8701a"][ri%4]}"></span>${esc(x.area.label)}`).join(""):""}</div></div>
+    <div class="mapnote"><span class="mapcount">지도 표시 ${sh}곳 / 결과 ${tot}곳</span>${tot>sh?` · 위치를 확인하지 못했거나 자료끼리 지역이 맞지 않는 ${tot-sh}곳은 지도에 찍지 않고 아래 근거 목록에만 있습니다.`:""}${noHi.length?` · ${esc(noHi.join(", "))}은(는) 집계 범위와 같은 경계 자료가 없어 경계를 강조하지 않습니다.`:""}</div>
+    <div class="mapwrap"><svg id="map" viewBox="${vb.map(v=>v.toFixed(1)).join(" ")}">${regionPaths(a=>hiSet.has(a.si+" "+a.name)?(cmp?"hi c"+(regRi[a.si+" "+a.name]%4):"hi"):"",useCh)}${useCh?chujaFrame(U):""}<g id="dotlayer"></g></svg><button id="mapreset" class="mapbtn hidden">전체 보기</button><div class="maptip" id="maptip"></div></div>
+    <div class="mapnote">점을 누르면 아래 근거 목록의 그 시설로 이동합니다. 숫자가 적힌 점은 가까이 모인 시설이며, 누르면 확대됩니다. 등록 과목·집계는 제주데이터허브 #859(원본 갱신 2025-08-31) 기준입니다. ${esc(META.coord_label)} 이전·폐업 등으로 실제와 다를 수 있습니다. 거리·길 안내는 하지 않습니다.</div></div>`;
+}
+function bindMap(r){
+  const svg=$("map"); if(!svg)return; const tip=$("maptip");
+  const show=(e,t)=>{const b=svg.parentElement.getBoundingClientRect();tip.textContent=t;tip.style.display="block";tip.style.left=(e.clientX-b.left+12)+"px";tip.style.top=(e.clientY-b.top+12)+"px"};
+  svg.addEventListener("mouseleave",()=>tip.style.display="none");
+  if(r.intent==="rank"){
+    const byName={}; r.results.forEach(x=>(x.area.map_regions||[]).forEach(n=>byName[n]=x));
+    const max=Math.max(1,...r.results.map(x=>x.registered));
+    svg.querySelectorAll(".rg").forEach(p=>{const a=MAP.areas[+p.dataset.ai];const x=byName[a.si+" "+a.name];if(!x)return;
+      if(x.registered===0)p.classList.add("ch0"); else p.style.fill=`rgba(47,138,115,${(0.18+0.82*Math.log(1+x.registered)/Math.log(1+max)).toFixed(2)})`;
+      p.querySelector("title").textContent="";
+      p.addEventListener("mousemove",e=>show(e,`${x.area.label}: 등록 확인 ${x.registered}곳 · 과목 정보 없음 ${x.unfilled}곳`));
+      p.addEventListener("click",()=>{const m=META.areas.find(z=>z.label===x.area.label);if(m)run({conditions:{intent:"single",subject:STATE.subject,groups:STATE.groups,hospital_only:STATE.hospital_only,areas:[{label:m.label,members:m.members,kind:m.kind,note:m.note}]}})})});
+    return;
+  }
+  const pts=window.__MAPPTS||[];
+  const reset=$("mapreset");
+  const go=(f,k,ri)=>{const panel=document.querySelectorAll("#out .tblpanel")[ri]; if(!panel)return;
+    const tb=panel.querySelector(`.tabs button[data-k="${k==="r"?"reg":"unf"}"]`); if(tb)tb.click();
+    const key=f["시설명"]+"|"+f["주소"]; const tr=[...panel.querySelectorAll(`.tbl[data-k="${k==="r"?"reg":"unf"}"] tr[data-fac]`)].find(t=>t.dataset.fac===key);
+    if(tr){tr.scrollIntoView({block:"center",behavior:"smooth"});tr.classList.add("flash");setTimeout(()=>tr.classList.remove("flash"),1600)}};
+  const draw=(vb,zoomed=false)=>{
+    svg.setAttribute("viewBox",vb.map(v=>v.toFixed(2)).join(" "));
+    const px=vb[2]/(svg.clientWidth||1090), thr=(zoomed?4:16)*px, rr=5.5*px;
+    // 화면에서 가까운 점끼리 묶는다 (좌표를 옮기지 않음)
+    const xy=pts.map(p=>P(p[0]["경도"],p[0]["위도"])); const cl=[];
+    xy.forEach((q,i)=>{let c=cl.find(c=>Math.hypot(c.x-q[0],c.y-q[1])<thr); if(!c){c={x:q[0],y:q[1],m:[]};cl.push(c)} c.m.push(i)});
+    cl.sort((a,b)=>(a.m.some(i=>pts[i][1]==="r")?1:0)-(b.m.some(i=>pts[i][1]==="r")?1:0));
+    const placed=cl.map(c=>[c.x-6*px,c.y-6*px,c.x+6*px,c.y+6*px]);
+    const hit=(box,c)=>{const own=[c.x-6*px,c.y-6*px,c.x+6*px,c.y+6*px].join(); return placed.some(b=>b.join()!==own&&!(box[2]<b[0]||box[0]>b[2]||box[3]<b[1]||box[1]>b[3]))};
+    cl.forEach(c=>{c.lab=0; if(!zoomed||c.m.length!==1)return; const w=(pts[c.m[0]][0]["시설명"].length*12+10)*px, hgt=16*px;
+      for(const [side,box] of [[1,[c.x+6*px,c.y-10*px,c.x+6*px+w,c.y+6*px]],[-1,[c.x-6*px-w,c.y-10*px,c.x-6*px,c.y+6*px]],[2,[c.x-w/2,c.y-24*px,c.x+w/2,c.y-8*px]],[3,[c.x-w/2,c.y+8*px,c.x+w/2,c.y+24*px]]]){
+        if(!hit(box,c)){placed.push(box); c.lab=side; c.lb=box; break}}});
+    $("dotlayer").innerHTML=cl.map((c,ci)=>{const k=c.m.some(i=>pts[i][1]==="r")?"r":"u";const n=c.m.length;const R=n>1?9*px:rr;
+      const kk=window.__MAPCMP?" k"+(pts[c.m[0]][2]%4):"";
+      return `<g class="dg" data-c="${ci}"><circle class="dot ${k}${kk}" cx="${c.x.toFixed(2)}" cy="${c.y.toFixed(2)}" r="${R.toFixed(3)}"></circle>${n>1?`<text x="${c.x.toFixed(2)}" y="${(c.y+4*px).toFixed(2)}" text-anchor="middle" font-size="${(11*px).toFixed(3)}" fill="#fff" font-weight="700" pointer-events="none">${n}</text>`:""}${c.lab?`<text x="${(c.lab===1?c.x+8*px:c.lab===-1?c.x-8*px:c.x).toFixed(2)}" y="${(c.lab===2?c.y-12*px:c.lab===3?c.y+20*px:c.y+4*px).toFixed(2)}" text-anchor="${c.lab===1?"start":c.lab===-1?"end":"middle"}" font-size="${(12*px).toFixed(3)}" fill="#1f2a2e" stroke="#fff" stroke-width="${(3*px).toFixed(3)}" paint-order="stroke" pointer-events="none">${esc(pts[c.m[0]][0]["시설명"])}</text>`:""}</g>`}).join("");
+    if(window.__MAPCMP&&!zoomed){const col=["#1f6f5c","#3159a8","#8a3f91","#a8701a"];
+      $("dotlayer").insertAdjacentHTML("beforeend",(window.__MAPLABS||[]).map(L=>{const fs=15*px,w=(L.t.length*14+18)*px,h=24*px;
+        return `<g pointer-events="none"><rect x="${(L.x-w/2).toFixed(2)}" y="${(L.y-h/2-30*px).toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}" rx="${(6*px).toFixed(2)}" fill="#fff" stroke="${col[L.ri%4]}" stroke-width="${(2*px).toFixed(2)}" opacity="0.88"></rect><text x="${L.x.toFixed(2)}" y="${(L.y-30*px+5*px).toFixed(2)}" text-anchor="middle" font-size="${fs.toFixed(3)}" font-weight="700" fill="${col[L.ri%4]}">${esc(L.t)}</text></g>`}).join(""))}
+    $("dotlayer").querySelectorAll(".dg").forEach(gEl=>{const c=cl[+gEl.dataset.c]; const m=c.m.map(i=>pts[i]);
+      const same=c.m.every(i=>Math.hypot(xy[i][0]-xy[c.m[0]][0],xy[i][1]-xy[c.m[0]][1])<1e-6);
+      const label=m.map(p=>`${p[0]["시설명"]}${p[1]==="u"?"(과목 정보 없음)":""}`).join(", ");
+      const [f,k,ri]=m.find(p=>p[1]==="r")||m[0];
+      gEl.addEventListener("mousemove",e=>show(e,m.length===1?`${f["시설명"]} · ${f["종류"]}${k==="u"?" · 과목 정보 없음":""}`:(same?`같은 건물 ${m.length}곳: ${label}`:(zoomed?`바로 옆에 붙은 ${m.length}곳: ${label}`:`가까이 모인 ${m.length}곳 (눌러서 확대): ${label}`))));
+      gEl.addEventListener("click",()=>{
+        if(m.length>1&&!same&&!zoomed){const bbs=c.m.map(i=>[xy[i][0],xy[i][1],xy[i][0],xy[i][1]]);draw(fitBox(bbs,2.2,1000/440,8),true);reset.classList.remove("hidden");tip.style.display="none";return}
+        svg.querySelectorAll(".dot.on").forEach(d=>d.classList.remove("on"));gEl.querySelector("circle").classList.add("on");go(f,k,ri)})});
+  };
+  reset.onclick=()=>{draw(window.__MAPVB0);reset.classList.add("hidden")};
+  draw(window.__MAPVB0);
+}
+function renderCards(r){
+  const subj=r.conditions.subject;
+  return `<div class="panel"><div class="label">결과</div><div class="cards">`+r.results.map(x=>{
+    const n=subj?x.registered:x.total;
+    return `<div class="card"><h3>${esc(x.area.label)}</h3>
+      <div class="big ${n===0?"zero":""}">${n}<small>곳</small></div>
+      <div class="sub">${subj?`<b>${esc(subj)}</b> 등록 확인`:"범위 안 시설"}</div>
+      ${subj?`<div class="sub">같은 범위 시설 ${x.total}곳 중 과목 정보 없음 <b class="unf">${x.unfilled}곳</b></div>`:""}
+    </div>`}).join("")+`</div></div>`;
+}
+function renderRank(r){
+  const max=Math.max(1,...r.results.map(x=>x.registered+x.unfilled));
+  return `<div class="panel rank"><div class="row"><div class="label">${esc(r.conditions.subject)} 등록 시설 수 · 권역별 비교 (행을 누르면 그 지역 목록 · 권역마다 인구·면적이 달라 건수만으로 접근성을 판단할 수 없습니다)</div>
+    <div class="legend"><i style="background:var(--bar)"></i>등록 확인<i style="background:var(--bar-unf)"></i>과목 정보 없음(미기입 또는 과목명이 아닌 값)</div></div>
+    <div class="tablewrap" style="max-height:560px"><table><thead><tr><th>지역</th><th>등록 확인</th><th>과목 정보 없음</th><th>범위 안 시설</th><th></th></tr></thead><tbody>`+
+    r.results.map(x=>`<tr data-area="${esc(x.area.label)}" style="cursor:pointer" class="${x.registered===0?"zero-row":""}"><td>${esc(x.area.label)}</td><td><b>${x.registered}</b></td><td>${x.unfilled}</td><td>${x.total}</td>
+      <td class="bar"><div class="barwrap"><div class="r" style="width:${x.registered/max*100}%"></div><div class="u" style="width:${x.unfilled/max*100}%"></div></div></td></tr>`).join("")+
+    `</tbody></table></div></div>`;
+}
+function renderTables(r){
+  const subj=r.conditions.subject;
+  return r.results.map((x,i)=>`<div class="panel tblpanel"><div class="row"><div class="label">근거 목록 · ${esc(x.area.label)}</div><button data-csv="${i}">CSV 내려받기</button></div>
+    <div class="tabs"><button class="on" data-k="reg">${subj?"등록 확인":"시설"} ${x.registered}곳</button>${subj?`<button data-k="unf">과목 정보 없음 ${x.unfilled}곳</button>`:""}</div>
+    ${tbl(x.registered_list,"reg",false,subj)}${subj?tbl(x.unfilled_list,"unf",true,subj):""}
+    <p class="understood" style="margin:6px 0 0">기관 전화번호 출처: 건강보험심사평가원 · 2026.09.30 기준 · 이후 변경될 수 있음. 기관명과 도로명주소가 일치하지 않은 시설은 ‘확인 안 됨’.</p></div>`).join("");
+}
+function tbl(rows,k,hidden,subj){
+  if(!rows.length)return `<div class="tbl ${hidden?"hidden":""} understood" data-k="${k}" style="padding:10px">해당 시설이 없습니다.</div>`;
+  return `<div class="tbl tablewrap ${hidden?"hidden":""}" data-k="${k}"><table><thead><tr><th>시설명</th><th>종류</th><th>법정동·읍면</th><th>등록 진료과목</th><th>주소</th><th style="white-space:nowrap">기관 전화번호</th></tr></thead><tbody>`+
+   rows.map(f=>`<tr data-fac="${esc(f["시설명"]+"|"+f["주소"])}"><td>${esc(f["시설명"])}</td><td><span class="tag">${esc(f["종류"])}</span></td><td>${esc(f["법정동·읍면"])}</td>
+   <td>${f["등록 진료과목"]==="(과목 정보 없음)"?'<span class="tag unf">미기입</span>':(k==="unf"?'<span class="tag unf">과목명 아님</span> 원문: '+esc(f["등록 진료과목"]):hl(f["등록 진료과목"],subj))}</td><td>${esc(f["주소"])}${f["지도"]&&f["지도"].startsWith("지도 표시 보류")?` <span class="tag unf" title="${esc(f["지도"])}">지도 표시 보류</span>`:""}</td><td style="white-space:nowrap">${f["기관 전화번호"]==="확인 안 됨"?'<span class="understood">확인 안 됨</span>':esc(f["기관 전화번호"])}</td></tr>`).join("")+`</tbody></table></div>`;
+}
+function hl(s,subj){return esc(s).split(", ").map(t=>subj&&t.replace(/\(\d+개과\)/,"")===subj?`<span class="hl">${t}</span>`:t).join(", ")}
+function downloadCSV(i){
+  const x=LAST.results[i], subj=LAST.conditions.subject;
+  const rows=[...x.registered_list.map(f=>({구분:subj?"등록 확인":"시설",...f})),...x.unfilled_list.map(f=>({구분:"과목 정보 없음",...f}))];
+  const cols=["구분","시설명","종류","시","법정동·읍면","등록 진료과목","주소","기관 전화번호","개설일","경도","위도","지도"];
+  const csv="﻿"+cols.join(",")+"\n"+rows.map(r=>cols.map(c=>`"${String(r[c]??"").replace(/"/g,'""')}"`).join(",")).join("\n")+`\n"출처: ${LAST.data_label}"\n"기관 전화번호·좌표 출처: 건강보험심사평가원 전국 병의원 및 약국 현황(2026.09.30 기준), 이후 변경될 수 있음"\n`;
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download=`${x.area.label}_${subj||"시설"}.csv`;a.click();
+}
+init();
+</script>
+</body>
+</html>
